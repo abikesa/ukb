@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ukubona Fractal Pedagogy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 30% 20%, #1a0d2e 0%, #0a0514 50%, #000000 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        .title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd700, #ff6b9d, #764ba2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a9c0;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .glyph-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 4rem auto;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(255, 107, 157, 0.1) 0%, transparent 70%);
+            animation: pulseGlow 4s infinite ease-in-out;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 50px rgba(255, 107, 157, 0.2); }
+            50% { box-shadow: 0 0 100px rgba(255, 107, 157, 0.4); }
+        }
+        
+        .glyph {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(16, 20, 31, 0.8);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .glyph:hover {
+            transform: scale(1.1) translateZ(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .glyph.active {
+            transform: scale(1.15);
+            z-index: 10;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .glyph span.emoji {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+        
+        .glyph strong {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+        }
+        
+        .meta {
+            font-size: 0.65rem;
+            color: #a0a9c0;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+        
+        .level {
+            font-size: 0.65rem;
+            font-style: italic;
+            color: #6cf;
+            margin-top: 0.25rem;
+        }
+        
+        .section {
+            margin: 3rem 0;
+            padding: 2.5rem;
+            background: rgba(16, 20, 31, 0.6);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            transition: all;
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffd700, #764ba2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            background: rgba(10, 5, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            z-index: 1000;
+            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+        
+        .detail-panel.active {
+            right: 0;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #764ba2;
+        }
+        
+        .detail-section p {
+            line-height: 1.6;
+            color: #a0a9c0;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            background: rgba(10, 10, 20, 0.85);
+            padding: 1rem;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-btn {
+            background: none;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .nav-btn:hover, .nav-btn.active {
+            border-color: #764ba2;
+            background: rgba(118, 75, 162, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        ul {
+            list-style: none;
+            padding-left: 1rem;
+            color: #a0a9c0;
+        }
+        
+        ul li {
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        ul li strong {
+            color: #ffffff;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: rgba(16, 20, 31, 0.8);
+            border-radius: 20px;
+            margin: 4rem 0 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeInDown 1s ease-out;
+            color: #a0a9c0;
+            font-size: 0.85rem;
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .glyph-container {
+                max-width: 100%;
+                height: auto;
+                aspect-ratio: unset;
+            }
+            
+            .glyph {
+                position: static;
+                width: 100%;
+                height: auto;
+                margin: 1rem 0;
+                border-radius: 15px;
+            }
+            
+            .glyph span.emoji {
+                font-size: 1.8rem;
+            }
+            
+            .glyph strong {
+                font-size: 0.85rem;
+            }
+            
+            .meta, .level {
+                font-size: 0.6rem;
+            }
+            
+            .detail-panel {
+                width: 100vw;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cosmic-bg" id="cosmicBg"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🌍 Ukubona LLC — Glyphic Curriculum Stack</h1>
+            <p class="subtitle">Fractal pedagogic delivery across platforms, tools, aesthetics, and levels. Structured for PAIRS@JH and global scale-out.</p>
+        </div>
+        
+        <div class="section">
+            <h2><span style="font-size: 1.5rem;">🧠</span> Technical Pentad: Stata Programming Series</h2>
+            <div class="glyph-container" id="stata-glyphs">
+                <div class="glyph" data-glyph="stata-collaborative" style="top: 0%; left: 50%; transform: translate(-50%, 0);">
+                    <span class="emoji">🧠</span>
+                    <strong>Collaborative Stata</strong>
+                    <div class="meta">Team-based coding, reproducibility</div>
+                </div>
+                <div class="glyph" data-glyph="stata-macros" style="top: 30%; left: 85%; transform: translate(-50%, -50%);">
+                    <span class="emoji">✍️</span>
+                    <strong>Macros & Memory</strong>
+                    <div class="meta">Abstraction, parameterization</div>
+                </div>
+                <div class="glyph" data-glyph="stata-loops" style="top: 70%; left: 85%; transform: translate(-50%, -50%);">
+                    <span class="emoji">🔁</span>
+                    <strong>Loops & Syntax</strong>
+                    <div class="meta">Control flow, iteration</div>
+                </div>
+                <div class="glyph" data-glyph="stata-files" style="top: 70%; left: 15%; transform: translate(-50%, -50%);">
+                    <span class="emoji">🗃️</span>
+                    <strong>File Management</strong>
+                    <div class="meta">Pathing, automation</div>
+                </div>
+                <div class="glyph" data-glyph="stata-graphs" style="top: 30%; left: 15%; transform: translate(-50%, -50%);">
+                    <span class="emoji">📊</span>
+                    <strong>Graphs & Data</strong>
+                    <div class="meta">Visuals, exploratory analysis</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><span style="font-size: 1.5rem;">💠</span> Inferential Web Stack: Flask + Jinja2 Fractal</h2>
+            <div class="glyph-container" id="web-glyphs">
+                <div class="glyph" data-glyph="web-data" style="top: 0%; left: 50%; transform: translate(-50%, 0);">
+                    <span class="emoji">🌊</span>
+                    <strong>Data</strong>
+                    <div class="meta">Simulated / Collected</div>
+                    <div class="level">Basic</div>
+                </div>
+                <div class="glyph" data-glyph="web-flask" style="top: 30%; left: 85%; transform: translate(-50%, -50%);">
+                    <span class="emoji">❤️</span>
+                    <strong>Flask</strong>
+                    <div class="meta">Individual / Heritage</div>
+                    <div class="level">Intermediate</div>
+                </div>
+                <div class="glyph" data-glyph="web-jinja2" style="top: 70%; left: 85%; transform: translate(-50%, -50%);">
+                    <span class="emoji">🦢</span>
+                    <strong>Jinja2</strong>
+                    <div class="meta">Dynamic Templates</div>
+                    <div class="level">Intermediate</div>
+                </div>
+                <div class="glyph" data-glyph="web-html" style="top: 70%; left: 15%; transform: translate(-50%, -50%);">
+                    <span class="emoji">🐬</span>
+                    <strong>HTML</strong>
+                    <div class="meta">Interface Logic</div>
+                    <div class="level">Basic to Advanced</div>
+                </div>
+                <div class="glyph" data-glyph="web-app" style="top: 30%; left: 15%; transform: translate(-50%, -50%);">
+                    <span class="emoji">🔁</span>
+                    <strong>App</strong>
+                    <div class="meta">Live Performance</div>
+                    <div class="level">Advanced</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><span style="font-size: 1.5rem;">🏛️</span> Curriculum Delivery Modes</h2>
+            <ul>
+                <li><span style="font-size: 1.2rem;">🧭</span> <strong>Levels:</strong> Basic → Intermediate → Advanced</li>
+                <li><span style="font-size: 1.2rem;">📅</span> <strong>Cadence:</strong> Year-round (Spring, Summer, Fall, Winter)</li>
+                <li><span style="font-size: 1.2rem;">🏫</span> <strong>Anchor:</strong> PAIRS @ Johns Hopkins Bloomberg School of Public Health</li>
+                <li><span style="font-size: 1.2rem;">🌐</span> <strong>Expansion:</strong> Modular export to global academic and private sectors</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2><span style="font-size: 1.5rem;">💼</span> Business and Aesthetic Integration</h2>
+            <ul>
+                <li><span style="font-size: 1.2rem;">🏢</span> <strong>Vendor:</strong> Ukubona LLC</li>
+                <li><span style="font-size: 1.2rem;">🔄</span> <strong>Fractal Principle:</strong> Every layer is pedagogically, aesthetically, and operationally self-similar</li>
+                <li><span style="font-size: 1.2rem;">🛠️</span> <strong>Stacked Offerings:</strong> R, Python, Stata, JS, AI, HTML (all PAIRS-compatible)</li>
+                <li><span style="font-size: 1.2rem;">📈</span> <strong>Growth Path:</strong> Micro-course → Certificate → Institutional Partnership</li>
+            </ul>
+        </div>
+        
+        <div class="detail-panel" id="detailPanel">
+            <div class="detail-header">
+                <div class="detail-title" id="detailTitle">
+                    <span id="detailIcon">🧠</span>
+                    <span id="detailName">Collaborative Stata Programming</span>
+                </div>
+                <button class="close-btn" onclick="closeDetail()">×</button>
+            </div>
+            <div class="detail-section">
+                <h3>Overview</h3>
+                <p id="detailOverview"></p>
+            </div>
+            <div class="detail-section">
+                <h3>Pedagogical Value</h3>
+                <p id="detailPedagogy"></p>
+            </div>
+            <div class="detail-section">
+                <h3>Business Impact</h3>
+                <p id="detailBusiness"></p>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn active" onclick="setView('circular')">Circular View</button>
+            <button class="nav-btn" onclick="setView('grid')">Grid View</button>
+            <button class="nav-btn" onclick="setView('timeline')">Timeline View</button>
+        </div>
+        
+        <footer>
+            Designed with fractal love by Ukubona LLC · Signal, Stewardship, Sustainability
+        </footer>
+    </div>
+    
+    <script>
+        const glyphData = {
+            'stata-collaborative': {
+                icon: '🧠',
+                name: 'Collaborative Stata Programming',
+                overview: 'Learn team-based coding practices in Stata, focusing on reproducibility and version control. Ideal for research teams aiming for seamless collaboration.',
+                pedagogy: 'Builds foundational skills in collaborative workflows, emphasizing Git integration and shared coding environments. Scales from beginner to advanced teams.',
+                business: 'Enhances research efficiency for PAIRS@JH and similar institutions, reducing errors and enabling scalable data analysis pipelines.'
+            },
+            'stata-macros': {
+                icon: '✍️',
+                name: 'Macros and the Art of Memory',
+                overview: 'Master named abstractions and parameterization in Stata to streamline complex workflows and enhance code clarity.',
+                pedagogy: 'Teaches procedural thinking and abstraction, critical for intermediate learners transitioning to advanced programming paradigms.',
+                business: 'Reduces development time for Ukubona LLC clients by enabling reusable, maintainable codebases, driving cost efficiency.'
+            },
+            'stata-loops': {
+                icon: '🔁',
+                name: 'Loops and Program Syntax',
+                overview: 'Dive into control flow and iteration in Stata, mastering functional patterns for dynamic data processing.',
+                pedagogy: 'Reinforces logical structuring of code, preparing learners for complex automation tasks across datasets.',
+                business: 'Powers scalable analytics for PAIRS@JH, enabling rapid processing of large datasets for real-time insights.'
+            },
+            'stata-files': {
+                icon: '🗃️',
+                name: 'Advanced File Management',
+                overview: 'Automate file handling in Stata, including pathing, external dependencies, and large-scale data integration.',
+                pedagogy: 'Develops advanced skills in system-level automation, crucial for managing real-world research data pipelines.',
+                business: 'Streamlines data operations for Ukubona, ensuring robust integration with enterprise systems and global scalability.'
+            },
+            'stata-graphs': {
+                icon: '📊',
+                name: 'Graphs and Data',
+                overview: 'Create publication-ready visualizations in Stata, comparing simulated vs. collected data for exploratory analysis.',
+                pedagogy: 'Blends data literacy with aesthetic design, teaching learners to communicate insights effectively.',
+                business: 'Drives high-impact deliverables for PAIRS@JH and clients, enhancing research credibility and stakeholder engagement.'
+            },
+            'web-data': {
+                icon: '🌊',
+                name: 'Data',
+                overview: 'Learn to handle simulated and collected data, the foundation for web-based analytics and visualization.',
+                pedagogy: 'Introduces data fundamentals for beginners, building intuition for data structures and preprocessing.',
+                business: 'Enables Ukubona to deliver accessible data literacy modules, scalable to global educational markets.'
+            },
+            'web-flask': {
+                icon: '❤️',
+                name: 'Flask',
+                overview: 'Build web applications with Flask, focusing on individual and heritage-driven data processing workflows.',
+                pedagogy: 'Intermediate learners gain hands-on experience with Python-based web frameworks, bridging code and interface.',
+                business: 'Powers custom app development for PAIRS@JH, offering scalable solutions for research data dissemination.'
+            },
+            'web-jinja2': {
+                icon: '🦢',
+                name: 'Jinja2',
+                overview: 'Create dynamic templates with Jinja2, enabling motion and interactivity in web applications.',
+                pedagogy: 'Teaches templating logic, critical for intermediate learners building responsive user interfaces.',
+                business: 'Enhances Ukubona’s web offerings, delivering engaging, dynamic content for educational and commercial clients.'
+            },
+            'web-html': {
+                icon: '🐬',
+                name: 'HTML',
+                overview: 'Master HTML for interface logic and grouped tasks, scaling from basic layouts to advanced web structures.',
+                pedagogy: 'Spans beginner to advanced levels, teaching semantic design and accessibility for universal applications.',
+                business: 'Underpins Ukubona’s LMS-compatible content, ensuring cross-platform delivery for global partnerships.'
+            },
+            'web-app': {
+                icon: '🔁',
+                name: 'App',
+                overview: 'Develop full-stack applications with live performance metrics and notifications, integrating Flask, Jinja2, and HTML.',
+                pedagogy: 'Advanced learners synthesize technical skills into cohesive, real-time systems, ready for production.',
+                business: 'Drives revenue through premium offerings for PAIRS@JH and institutions, enabling high-value, interactive platforms.'
+            }
+        };
+        
+        let currentView = 'circular';
+        let currentGlyph = null;
+        
+        function createStars() {
+            const cosmicBg = document.getElementById('cosmicBg');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                cosmicBg.appendChild(star);
+            }
+        }
+        
+        document.querySelectorAll('.glyph').forEach(glyph => {
+            glyph.addEventListener('click', () => {
+                const glyphType = glyph.dataset.glyph;
+                openDetail(glyphType);
+            });
+            
+            glyph.addEventListener('pointerenter', () => {
+                glyph.classList.add('active');
+            });
+            
+            glyph.addEventListener('pointerleave', () => {
+                glyph.classList.remove('active');
+            });
+        });
+        
+        function openDetail(glyphType) {
+            const data = glyphData[glyphType];
+            document.getElementById('detailIcon').textContent = data.icon;
+            document.getElementById('detailName').textContent = data.name;
+            document.getElementById('detailOverview').textContent = data.overview;
+            document.getElementById('detailPedagogy').textContent = data.pedagogy;
+            document.getElementById('detailBusiness').textContent = data.business;
+            document.getElementById('detailPanel').classList.add('active');
+            currentGlyph = glyphType;
+        }
+        
+        function closeDetail() {
+            document.getElementById('detailPanel').classList.remove('active');
+            currentGlyph = null;
+        }
+        
+        function setView(view) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            currentView = view;
+            
+            const containers = document.querySelectorAll('.glyph-container');
+            containers.forEach(container => {
+                if (view === 'grid') {
+                    container.style.display = 'grid';
+                    container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(200px, 1fr))';
+                    container.style.aspectRatio = 'unset';
+                    container.querySelectorAll('.glyph').forEach(g => {
+                        g.style.position = 'static';
+                        g.style.transform = 'none';
+                        g.style.width = '100%';
+                        g.style.height = 'auto';
+                        g.style.borderRadius = '15px';
+                        g.style.margin = '0.5rem 0';
+                    });
+                } else if (view === 'timeline') {
+                    container.style.display = 'flex';
+                    container.style.flexDirection = 'column';
+                    container.style.aspectRatio = 'unset';
+                    container.querySelectorAll('.glyph').forEach(g => {
+                        g.style.position = 'static';
+                        g.style.transform = 'none';
+                        g.style.width = '100%';
+                        g.style.height = 'auto';
+                        g.style.borderRadius = '15px';
+                        g.style.margin = '0.5rem 0';
+                    });
+                } else {
+                    container.style.display = 'block';
+                    container.style.aspectRatio = '1';
+                    container.querySelectorAll('.glyph').forEach((g, i) => {
+                        g.style.position = 'absolute';
+                        g.style.width = '150px';
+                        g.style.height = '150px';
+                        g.style.borderRadius = '50%';
+                        const angle = (i * 360) / 5;
+                        const radius = i === 0 ? 0 : 200;
+                        const x = 50 + (radius * Math.cos((angle * Math.PI) / 180)) / 600 * 100;
+                        const y = 50 + (radius * Math.sin((angle * Math.PI) / 180)) / 600 * 100;
+                        g.style.left = `${x}%`;
+                        g.style.top = `${y}%`;
+                        g.style.transform = `translate(-50%, -50%)`;
+                    });
+                }
+            });
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDetail();
+            const glyphs = Object.keys(glyphData);
+            if (currentGlyph && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+                const currentIndex = glyphs.indexOf(currentGlyph);
+                const nextIndex = e.key === 'ArrowRight' 
+                    ? (currentIndex + 1) % glyphs.length
+                    : (currentIndex - 1 + glyphs.length) % glyphs.length;
+                openDetail(glyphs[nextIndex]);
+            }
+        });
+        
+        createStars();
+        setInterval(() => {
+            const glyphs = document.querySelectorAll('.glyph');
+            glyphs.forEach((g, i) => {
+                setTimeout(() => {
+                    g.classList.add('active');
+                    setTimeout(() => g.classList.remove('active'), 1000);
+                }, i * 100);
+            });
+        }, 10000);
+    </script>
+</body>
+</html>
